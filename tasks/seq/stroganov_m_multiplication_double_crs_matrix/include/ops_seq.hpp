@@ -20,7 +20,9 @@ class MuitiplicationCrsMatrixSeq : public ppc::core::Task {
   std::vector<unsigned int> col_A_, A_rI_, col_B_, B_rI_, output_col_, output_rI_;
   unsigned int A_count_rows_, A_count_non_zero_, B_count_rows_, B_count_non_zero_;
 };
+
 std::vector<double> GetRandomMatrix(unsigned int m, unsigned int n);
+
 void MakeCRS(std::vector<unsigned int> &r_i, std::vector<unsigned int> &col, std::vector<double> &val,
              const std::vector<double> &src, unsigned int m, unsigned int n);
 
