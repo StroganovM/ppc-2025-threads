@@ -25,4 +25,4 @@ void MakeCRS(std::vector<unsigned int> &r_i, std::vector<unsigned int> &col, std
              const std::vector<double> &src, unsigned int m, unsigned int n);
 void MatrixMultiplication(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c,
                           unsigned int m, unsigned int n, unsigned int p);
-}  // stroganov_m_multiplication_double_crs_matrix_seq
+                                                       }  // stroganov_m_multiplication_double_crs_matrix_seq
