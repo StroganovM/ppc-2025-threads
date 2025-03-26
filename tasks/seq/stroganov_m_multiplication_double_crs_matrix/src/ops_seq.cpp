@@ -1,12 +1,11 @@
 #include "seq/stroganov_m_multiplication_double_crs_matrix/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <vector>
-#include <unordered_map>
 #include <iostream>
-#include <algorithm>
-
+#include <unordered_map>
+#include <vector>
 
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::PreProcessingImpl() {
   A_count_rows_ = task_data->inputs_count[0];
@@ -15,7 +14,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
 
   A_count_non_zero_ = task_data->inputs_count[1];
   in_ptr = reinterpret_cast<unsigned int *>(task_data->inputs[1]);
-  col_A_ = std::vector<unsigned int>(in_ptr, in_ptr +  A_count_non_zero_);
+  col_A_ = std::vector<unsigned int>(in_ptr, in_ptr + A_count_non_zero_);
 
   auto *val_ptr = reinterpret_cast<double *>(task_data->inputs[2]);
   A_val_ = std::vector<double>(val_ptr, val_ptr + A_count_non_zero_);
@@ -85,7 +84,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
     output_rI_[i + 1] = output_rI_[i] + static_cast<unsigned int>(temp_result[i].size());
     std::vector<std::pair<unsigned int, double>> sorted_row(temp_result[i].begin(), temp_result[i].end());
     std::sort(sorted_row.begin(), sorted_row.end());
-    for (const auto& [col, val] : sorted_row) {
+    for (const auto &[col, val] : sorted_row) {
       output_col_.push_back(col);
       output_.push_back(val);
     }

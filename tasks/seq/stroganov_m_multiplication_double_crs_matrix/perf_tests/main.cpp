@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -10,26 +9,65 @@
 #include "core/task/include/task.hpp"
 #include "seq/stroganov_m_multiplication_double_crs_matrix/include/ops_seq.hpp"
 
-TEST(stroganov_m_test_task_seq, test_pipeline_run) {
-  constexpr int kCount = 500;
+TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_pipeline_run) {
+  const unsigned int n = 1000;
 
-  // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
+  // Create test data
+  std::vector<double> a_val(n * n, 1);
+  std::vector<double> b_val(n * n, 1);
+  std::vector<double> c_val(n * n, n);
+  std::vector<unsigned int> a_ri(n + 1, 0);
+  std::vector<unsigned int> a_col(n * n);
+  std::vector<unsigned int> b_ri(n + 1, 0);
+  std::vector<unsigned int> b_col(n * n);
+  std::vector<unsigned int> c_ri(n + 1, 0);
+  std::vector<unsigned int> c_col(n * n);
 
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
+  // Initialize matrices
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < n; j++) {
+      a_col[(i * n) + j] = j;
+      b_col[(i * n) + j] = j;
+      c_col[(i * n) + j] = j;
+    }
+    a_ri[i + 1] = n * (i + 1);
+    b_ri[i + 1] = n * (i + 1);
+    c_ri[i + 1] = n * (i + 1);
   }
 
-  // Create task_data
+  // Prepare task data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_ri.data()));
+  task_data_seq->inputs_count.emplace_back(a_ri.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col.data()));
+  task_data_seq->inputs_count.emplace_back(a_col.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_val.data()));
+  task_data_seq->inputs_count.emplace_back(a_val.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_ri.data()));
+  task_data_seq->inputs_count.emplace_back(b_ri.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col.data()));
+  task_data_seq->inputs_count.emplace_back(b_col.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_val.data()));
+  task_data_seq->inputs_count.emplace_back(b_val.size());
+
+  // Prepare output buffers
+  std::vector<unsigned int> out_ri(n + 1, 0);
+  std::vector<unsigned int> out_col(n * n);
+  std::vector<double> out_val(n * n);
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_ri.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_col.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_val.data()));
+  task_data_seq->outputs_count.emplace_back(out_ri.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -48,29 +86,72 @@ TEST(stroganov_m_test_task_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(in, out);
+
+  // Verify results
+  ASSERT_EQ(c_ri, out_ri);
+  ASSERT_EQ(c_col, out_col);
+  ASSERT_EQ(c_val, out_val);
 }
 
-TEST(stroganov_m_test_task_seq, test_task_run) {
-  constexpr int kCount = 500;
+TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_task_run) {
+  const unsigned int n = 1000;
 
-  // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
+  // Create test data
+  std::vector<double> a_val(n * n, 1);
+  std::vector<double> b_val(n * n, 1);
+  std::vector<double> c_val(n * n, n);
+  std::vector<unsigned int> a_ri(n + 1, 0);
+  std::vector<unsigned int> a_col(n * n);
+  std::vector<unsigned int> b_ri(n + 1, 0);
+  std::vector<unsigned int> b_col(n * n);
+  std::vector<unsigned int> c_ri(n + 1, 0);
+  std::vector<unsigned int> c_col(n * n);
 
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
+  // Initialize matrices
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < n; j++) {
+      a_col[(i * n) + j] = j;
+      b_col[(i * n) + j] = j;
+      c_col[(i * n) + j] = j;
+    }
+    a_ri[i + 1] = n * (i + 1);
+    b_ri[i + 1] = n * (i + 1);
+    c_ri[i + 1] = n * (i + 1);
   }
 
-  // Create task_data
+  // Prepare task data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_ri.data()));
+  task_data_seq->inputs_count.emplace_back(a_ri.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col.data()));
+  task_data_seq->inputs_count.emplace_back(a_col.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_val.data()));
+  task_data_seq->inputs_count.emplace_back(a_val.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_ri.data()));
+  task_data_seq->inputs_count.emplace_back(b_ri.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col.data()));
+  task_data_seq->inputs_count.emplace_back(b_col.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_val.data()));
+  task_data_seq->inputs_count.emplace_back(b_val.size());
+
+  // Prepare output buffers
+  std::vector<unsigned int> out_ri(n + 1, 0);
+  std::vector<unsigned int> out_col(n * n);
+  std::vector<double> out_val(n * n);
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_ri.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_col.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_val.data()));
+  task_data_seq->outputs_count.emplace_back(out_ri.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -89,5 +170,9 @@ TEST(stroganov_m_test_task_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(in, out);
+
+  // Verify results
+  ASSERT_EQ(c_ri, out_ri);
+  ASSERT_EQ(c_col, out_col);
+  ASSERT_EQ(c_val, out_val);
 }
