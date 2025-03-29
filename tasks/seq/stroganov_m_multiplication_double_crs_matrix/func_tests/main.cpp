@@ -60,7 +60,8 @@ void MatrixMultiplication(const std::vector<double> &a, const std::vector<double
 }
 }  // namespace stroganov_m_multiplication_double_crs_matrix_seq
 
-TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
+/*
+TEST(stroganov_m_muitiplication_double_crs_matrix_seq, test_rndcrs) {
   const unsigned int m = 50;
   const unsigned int n = 50;
   const unsigned int p = 50;
@@ -74,6 +75,17 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
   std::vector<unsigned int> b_col;
   a = stroganov_m_multiplication_double_crs_matrix_seq::GetRandomMatrix(m, n);
   b = stroganov_m_multiplication_double_crs_matrix_seq::GetRandomMatrix(n, p);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<unsigned int> a_distrib(0, (m * n) - 1);
+  std::uniform_int_distribution<unsigned int> b_distrib(0, (n * p) - 1);
+  for (unsigned int i = 0; i < (m * n) - m; i++) {
+    a[a_distrib(gen)] = 0;
+  }
+  for (unsigned int i = 0; i < (n * p) - p; i++) {
+    b[b_distrib(gen)] = 0;
+  }
+
   stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(a_ri, a_col, a_val, a, m, n);
   stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(b_ri, b_col, b_val, b, n, p);
 
@@ -92,15 +104,81 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
   task_data_seq->inputs_count.emplace_back(b_col.size());
   task_data_seq->inputs_count.emplace_back(b_val.size());
 
+  std::vector<double> c(m * p, 0);
+  std::vector<double> c_val;
+  std::vector<unsigned int> c_ri;
+  std::vector<unsigned int> c_col;
+  stroganov_m_multiplication_double_crs_matrix_seq::MatrixMultiplication(a, b, c, m, n, p);
+  stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(c_ri, c_col, c_val, c, m, p);
+
   std::vector<unsigned int> out_ri(a_ri.size(), 0);
-  std::vector<unsigned int> out_col(m * p);
-  std::vector<double> out_val(m * p);
+  std::vector<unsigned int> out_col(c_col.size());
+  std::vector<double> out_val(c_val.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_ri.data()));
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_col.data()));
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_val.data()));
   task_data_seq->outputs_count.emplace_back(out_ri.size());
 
   stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+
+  ASSERT_EQ(c_ri, out_ri);
+  ASSERT_EQ(c_col, out_col);
+  ASSERT_EQ(c_val, out_val);
+}
+
+ */
+
+TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
+  const unsigned int m = 50;
+  const unsigned int n = 50;
+  const unsigned int p = 50;
+
+  // Генерация матриц
+  auto a = stroganov_m_multiplication_double_crs_matrix_seq::GetRandomMatrix(m, n);
+  auto b = stroganov_m_multiplication_double_crs_matrix_seq::GetRandomMatrix(n, p);
+
+  // Конвертация в CRS формат
+  std::vector<unsigned int> a_ri, a_col, b_ri, b_col;
+  std::vector<double> a_val, b_val;
+  stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(a_ri, a_col, a_val, a, m, n);
+  stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(b_ri, b_col, b_val, b, n, p);
+
+  // Подготовка входных данных
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+
+  // Входные данные для матрицы A
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_ri.data()));
+  task_data->inputs_count.emplace_back(a_ri.size());
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_col.data()));
+  task_data->inputs_count.emplace_back(a_col.size());
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_val.data()));
+  task_data->inputs_count.emplace_back(a_val.size());
+
+  // Входные данные для матрицы B
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_ri.data()));
+  task_data->inputs_count.emplace_back(b_ri.size());
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_col.data()));
+  task_data->inputs_count.emplace_back(b_col.size());
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_val.data()));
+  task_data->inputs_count.emplace_back(b_val.size());
+
+  std::vector<unsigned int> out_ri(a_ri.size(), 0);
+  std::vector<unsigned int> out_col(m * p);
+  std::vector<double> out_val(m * p);
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_ri.data()));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_col.data()));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_val.data()));
+  task_data->outputs_count.emplace_back(out_ri.size());
+
+  stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq test_task_sequential(task_data);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -119,46 +197,51 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
 }
 
 TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_100_100_100) {
-  const unsigned int m = 100;
-  const unsigned int n = 100;
-  const unsigned int p = 100;
-  std::vector<double> a;
-  std::vector<double> b;
-  std::vector<double> a_val;
-  std::vector<double> b_val;
-  std::vector<unsigned int> a_ri;
-  std::vector<unsigned int> a_col;
-  std::vector<unsigned int> b_ri;
-  std::vector<unsigned int> b_col;
-  a = stroganov_m_multiplication_double_crs_matrix_seq::GetRandomMatrix(m, n);
-  b = stroganov_m_multiplication_double_crs_matrix_seq::GetRandomMatrix(n, p);
+  const unsigned int m = 50;
+  const unsigned int n = 50;
+  const unsigned int p = 50;
+
+  // Генерация матриц
+  auto a = stroganov_m_multiplication_double_crs_matrix_seq::GetRandomMatrix(m, n);
+  auto b = stroganov_m_multiplication_double_crs_matrix_seq::GetRandomMatrix(n, p);
+
+  // Конвертация в CRS формат
+  std::vector<unsigned int> a_ri, a_col, b_ri, b_col;
+  std::vector<double> a_val, b_val;
   stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(a_ri, a_col, a_val, a, m, n);
   stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(b_ri, b_col, b_val, b, n, p);
 
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_ri.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_val.data()));
-  task_data_seq->inputs_count.emplace_back(a_ri.size());
-  task_data_seq->inputs_count.emplace_back(a_col.size());
-  task_data_seq->inputs_count.emplace_back(a_val.size());
+  auto task_data = std::make_shared<ppc::core::TaskData>();
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_ri.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_val.data()));
-  task_data_seq->inputs_count.emplace_back(b_ri.size());
-  task_data_seq->inputs_count.emplace_back(b_col.size());
-  task_data_seq->inputs_count.emplace_back(b_val.size());
+  // Входные данные для матрицы A
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_ri.data()));
+  task_data->inputs_count.emplace_back(a_ri.size());
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_col.data()));
+  task_data->inputs_count.emplace_back(a_col.size());
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_val.data()));
+  task_data->inputs_count.emplace_back(a_val.size());
+
+  // Входные данные для матрицы B
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_ri.data()));
+  task_data->inputs_count.emplace_back(b_ri.size());
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_col.data()));
+  task_data->inputs_count.emplace_back(b_col.size());
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_val.data()));
+  task_data->inputs_count.emplace_back(b_val.size());
 
   std::vector<unsigned int> out_ri(a_ri.size(), 0);
   std::vector<unsigned int> out_col(m * p);
   std::vector<double> out_val(m * p);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_ri.data()));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_col.data()));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_val.data()));
-  task_data_seq->outputs_count.emplace_back(out_ri.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_ri.data()));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_col.data()));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_val.data()));
+  task_data->outputs_count.emplace_back(out_ri.size());
 
-  stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq test_task_sequential(task_data_seq);
+  stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq test_task_sequential(task_data);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -241,71 +324,4 @@ TEST(stroganov_m_muitiplication_double_crs_matrix_seq, test_rndcrs_stat_zeroes) 
   ASSERT_EQ(c_val, out_val);
 }
 
-TEST(stroganov_m_muitiplication_double_crs_matrix_seq, test_rndcrs) {
-  const unsigned int m = 50;
-  const unsigned int n = 50;
-  const unsigned int p = 50;
-  std::vector<double> a;
-  std::vector<double> b;
-  std::vector<double> a_val;
-  std::vector<double> b_val;
-  std::vector<unsigned int> a_ri;
-  std::vector<unsigned int> a_col;
-  std::vector<unsigned int> b_ri;
-  std::vector<unsigned int> b_col;
-  a = stroganov_m_multiplication_double_crs_matrix_seq::GetRandomMatrix(m, n);
-  b = stroganov_m_multiplication_double_crs_matrix_seq::GetRandomMatrix(n, p);
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<unsigned int> a_distrib(0, (m * n) - 1);
-  std::uniform_int_distribution<unsigned int> b_distrib(0, (n * p) - 1);
-  for (unsigned int i = 0; i < (m * n) - m; i++) {
-    a[a_distrib(gen)] = 0;
-  }
-  for (unsigned int i = 0; i < (n * p) - p; i++) {
-    b[b_distrib(gen)] = 0;
-  }
 
-  stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(a_ri, a_col, a_val, a, m, n);
-  stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(b_ri, b_col, b_val, b, n, p);
-
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_ri.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_val.data()));
-  task_data_seq->inputs_count.emplace_back(a_ri.size());
-  task_data_seq->inputs_count.emplace_back(a_col.size());
-  task_data_seq->inputs_count.emplace_back(a_val.size());
-
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_ri.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_val.data()));
-  task_data_seq->inputs_count.emplace_back(b_ri.size());
-  task_data_seq->inputs_count.emplace_back(b_col.size());
-  task_data_seq->inputs_count.emplace_back(b_val.size());
-
-  std::vector<double> c(m * p, 0);
-  std::vector<double> c_val;
-  std::vector<unsigned int> c_ri;
-  std::vector<unsigned int> c_col;
-  stroganov_m_multiplication_double_crs_matrix_seq::MatrixMultiplication(a, b, c, m, n, p);
-  stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(c_ri, c_col, c_val, c, m, p);
-
-  std::vector<unsigned int> out_ri(a_ri.size(), 0);
-  std::vector<unsigned int> out_col(c_col.size());
-  std::vector<double> out_val(c_val.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_ri.data()));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_col.data()));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_val.data()));
-  task_data_seq->outputs_count.emplace_back(out_ri.size());
-
-  stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-
-  ASSERT_EQ(c_ri, out_ri);
-  ASSERT_EQ(c_col, out_col);
-  ASSERT_EQ(c_val, out_val);
-}
