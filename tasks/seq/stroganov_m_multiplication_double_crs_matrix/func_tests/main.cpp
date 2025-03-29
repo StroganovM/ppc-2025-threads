@@ -151,23 +151,23 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
   // Входные данные для матрицы A
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_ri.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_ri.data()));
   task_data->inputs_count.emplace_back(a_ri.size());
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_col.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col.data()));
   task_data->inputs_count.emplace_back(a_col.size());
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_val.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_val.data()));
   task_data->inputs_count.emplace_back(a_val.size());
 
   // Входные данные для матрицы B
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_ri.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_ri.data()));
   task_data->inputs_count.emplace_back(b_ri.size());
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_col.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col.data()));
   task_data->inputs_count.emplace_back(b_col.size());
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_val.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_val.data()));
   task_data->inputs_count.emplace_back(b_val.size());
 
   std::vector<unsigned int> out_ri(a_ri.size(), 0);
@@ -214,23 +214,23 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_100_100_100) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
   // Входные данные для матрицы A
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_ri.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_ri.data()));
   task_data->inputs_count.emplace_back(a_ri.size());
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_col.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col.data()));
   task_data->inputs_count.emplace_back(a_col.size());
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_val.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_val.data()));
   task_data->inputs_count.emplace_back(a_val.size());
 
   // Входные данные для матрицы B
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_ri.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_ri.data()));
   task_data->inputs_count.emplace_back(b_ri.size());
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_col.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col.data()));
   task_data->inputs_count.emplace_back(b_col.size());
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_val.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_val.data()));
   task_data->inputs_count.emplace_back(b_val.size());
 
   std::vector<unsigned int> out_ri(a_ri.size(), 0);
@@ -284,18 +284,24 @@ TEST(stroganov_m_muitiplication_double_crs_matrix_seq, test_rndcrs_stat_zeroes) 
   stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(b_ri, b_col, b_val, b, n, p);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  // Входные данные для матрицы A
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_ri.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_val.data()));
   task_data_seq->inputs_count.emplace_back(a_ri.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col.data()));
   task_data_seq->inputs_count.emplace_back(a_col.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_val.data()));
   task_data_seq->inputs_count.emplace_back(a_val.size());
 
+  // Входные данные для матрицы B
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_ri.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_val.data()));
   task_data_seq->inputs_count.emplace_back(b_ri.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col.data()));
   task_data_seq->inputs_count.emplace_back(b_col.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_val.data()));
   task_data_seq->inputs_count.emplace_back(b_val.size());
 
   std::vector<double> c(m * p, 0);
