@@ -323,5 +323,3 @@ TEST(stroganov_m_muitiplication_double_crs_matrix_seq, test_rndcrs_stat_zeroes) 
   ASSERT_EQ(c_col, out_col);
   ASSERT_EQ(c_val, out_val);
 }
-
-
