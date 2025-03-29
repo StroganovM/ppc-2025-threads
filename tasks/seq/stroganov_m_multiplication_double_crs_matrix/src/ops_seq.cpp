@@ -54,10 +54,10 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
       return false;
     }
   }
-  if (!A_rI_.empty() && A_rI_.back() != A_count_non_zero_) {
+  if (A_rI_.size() > 0 && A_rI_.back() != A_count_non_zero_) {
     return false;
   }
-  if (!B_rI_.empty() && B_rI_.back() != B_count_non_zero_) {
+  if (B_rI_.size() > 0 && B_rI_.back() != B_count_non_zero_) {
     return false;
   }
   return true;
