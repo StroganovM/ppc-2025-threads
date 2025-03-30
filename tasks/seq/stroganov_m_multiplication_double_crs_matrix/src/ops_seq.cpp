@@ -39,6 +39,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
 }
 
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::ValidationImpl() {
+  /*
   if (task_data->inputs_count[1] != task_data->inputs_count[2]) {
     return false;
   }
@@ -61,6 +62,13 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
     return false;
   }
   return true;
+  */
+  return task_data->inputs_count[1] == task_data->inputs_count[2] &&
+         task_data->inputs_count[4] == task_data->inputs_count[5] &&
+         task_data->inputs_count[0] == task_data->outputs_count[0] &&
+         *std::max_element(reinterpret_cast<unsigned int *>(task_data->inputs[1]),
+                           reinterpret_cast<unsigned int *>(task_data->inputs[1]) + task_data->inputs_count[1]) <=
+             task_data->inputs_count[3] - 2;
 }
 
 /*
@@ -228,6 +236,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
   return true;
 }
 
+
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::PostProcessingImpl() {
   // Получаем указатели на выходные буферы
   auto *out_rI_ptr = reinterpret_cast<unsigned int *>(task_data->outputs[0]);
@@ -252,6 +261,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
 
   return true;
 }
+
 */
 
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::PostProcessingImpl() {
