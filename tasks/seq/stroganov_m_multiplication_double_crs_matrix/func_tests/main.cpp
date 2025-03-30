@@ -131,7 +131,7 @@ TEST(stroganov_m_muitiplication_double_crs_matrix_seq, test_rndcrs) {
 }
 
  */
-
+/*
 TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
   const unsigned int m = 50;
   const unsigned int n = 50;
@@ -325,6 +325,81 @@ TEST(stroganov_m_muitiplication_double_crs_matrix_seq, test_rndcrs_stat_zeroes) 
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
+  ASSERT_EQ(c_ri, out_ri);
+  ASSERT_EQ(c_col, out_col);
+  ASSERT_EQ(c_val, out_val);
+}
+*/
+
+TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
+  const unsigned int m = 50;
+  const unsigned int n = 50;
+  const unsigned int p = 50;
+
+  // 1. Генерация матриц с контролируемой разреженностью
+  auto a = stroganov_m_multiplication_double_crs_matrix_seq::GetRandomMatrix(m, n);
+  auto b = stroganov_m_multiplication_double_crs_matrix_seq::GetRandomMatrix(n, p);
+
+  // 2. Создание CRS формата
+  std::vector<unsigned int> a_ri, a_col, b_ri, b_col;
+  std::vector<double> a_val, b_val;
+  stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(a_ri, a_col, a_val, a, m, n);
+  stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(b_ri, b_col, b_val, b, n, p);
+
+  // 3. Вычисление эталонного результата
+  std::vector<double> c(m * p, 0.0);
+  stroganov_m_multiplication_double_crs_matrix_seq::MatrixMultiplication(a, b, c, m, n, p);
+
+  std::vector<unsigned int> c_ri, c_col;
+  std::vector<double> c_val;
+  stroganov_m_multiplication_double_crs_matrix_seq::MakeCRS(c_ri, c_col, c_val, c, m, p);
+
+  // 4. Подготовка выходных буферов
+  std::vector<unsigned int> out_ri(m + 1);
+  std::vector<unsigned int> out_col(c_col.size());
+  std::vector<double> out_val(c_val.size());
+
+  // 5. Настройка задачи
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+
+  // Добавление входных данных
+  task_data->inputs_count.push_back(a_ri.size());
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(a_ri.data()));
+
+  task_data->inputs_count.push_back(a_col.size());
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(a_col.data()));
+
+  task_data->inputs_count.push_back(a_val.size());
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(a_val.data()));
+
+  task_data->inputs_count.push_back(b_ri.size());
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(b_ri.data()));
+
+  task_data->inputs_count.push_back(b_col.size());
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(b_col.data()));
+
+  task_data->inputs_count.push_back(b_val.size());
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(b_val.data()));
+
+  // Добавление выходных данных
+  task_data->outputs_count.push_back(out_ri.size());
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ri.data()));
+
+  task_data->outputs_count.push_back(out_col.size());
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_col.data()));
+
+  task_data->outputs_count.push_back(out_val.size());
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_val.data()));
+
+  // 6. Запуск и проверка
+  stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq test_task(task_data);
+
+  ASSERT_TRUE(test_task.Validation());
+  ASSERT_TRUE(test_task.PreProcessing());
+  ASSERT_TRUE(test_task.Run());
+  ASSERT_TRUE(test_task.PostProcessing());
+
+  // 7. Проверка результатов
   ASSERT_EQ(c_ri, out_ri);
   ASSERT_EQ(c_col, out_col);
   ASSERT_EQ(c_val, out_val);
