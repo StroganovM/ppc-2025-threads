@@ -131,7 +131,7 @@ TEST(stroganov_m_muitiplication_double_crs_matrix_seq, test_rndcrs) {
 }
 
  */
-/*
+
 TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
   const unsigned int m = 50;
   const unsigned int n = 50;
@@ -195,7 +195,7 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
   ASSERT_EQ(c_col, out_col);
   ASSERT_EQ(c_val, out_val);
 }
-
+/*
 TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_100_100_100) {
   const unsigned int m = 50;
   const unsigned int n = 50;
@@ -329,7 +329,7 @@ TEST(stroganov_m_muitiplication_double_crs_matrix_seq, test_rndcrs_stat_zeroes) 
   ASSERT_EQ(c_col, out_col);
   ASSERT_EQ(c_val, out_val);
 }
-*/
+
 
 TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
   const unsigned int m = 50;
@@ -404,3 +404,4 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
   ASSERT_EQ(c_col, out_col);
   ASSERT_EQ(c_val, out_val);
 }
+*/

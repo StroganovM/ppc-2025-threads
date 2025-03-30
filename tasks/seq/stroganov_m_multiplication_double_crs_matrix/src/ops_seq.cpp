@@ -39,6 +39,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
 }
 
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::ValidationImpl() {
+  /*
   if (task_data->inputs_count[1] != task_data->inputs_count[2]) {
     return false;
   }
@@ -61,9 +62,15 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
     return false;
   }
   return true;
+  */
+  return task_data->inputs_count[1] == task_data->inputs_count[2] &&
+         task_data->inputs_count[4] == task_data->inputs_count[5] &&
+         task_data->inputs_count[0] == task_data->outputs_count[0] &&
+         *std::max_element(reinterpret_cast<unsigned int *>(task_data->inputs[1]),
+                           reinterpret_cast<unsigned int *>(task_data->inputs[1]) + task_data->inputs_count[1]) <=
+             task_data->inputs_count[3] - 2;
 }
 
-/*
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::RunImpl() {
   output_rI_.resize(A_count_rows_ + 1, 0);
   std::vector<std::unordered_map<unsigned int, double>> temp_result(A_count_rows_);
@@ -92,8 +99,8 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
   }
   return true;
 }
-*/
 
+/*
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::RunImpl() {
   output_rI_.resize(A_count_rows_ + 1, 0);
   std::vector<std::unordered_map<unsigned int, double>> temp_result(A_count_rows_);
@@ -127,7 +134,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
 
   return true;
 }
-
+*/
 /*
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::PostProcessingImpl() {
   std::copy(output_rI_.begin(), output_rI_.end(), reinterpret_cast<unsigned int *>(task_data->outputs[0]));
@@ -135,7 +142,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
   std::copy(output_.begin(), output_.end(), reinterpret_cast<double *>(task_data->outputs[2]));
   return true;
 }
-*/
+
 
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::PostProcessingImpl() {
   // Получаем указатели на выходные буферы
@@ -159,5 +166,19 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
     std::copy(output_.begin(), output_.begin() + val_size, out_val_ptr);
   }
 
+  return true;
+}
+*/
+
+bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::PostProcessingImpl() {
+  for (size_t i = 0; i < output_rI_.size(); i++) {
+    reinterpret_cast<unsigned int *>(task_data->outputs[0])[i] = output_rI_[i];
+  }
+  for (size_t i = 0; i < output_col_.size(); i++) {
+    reinterpret_cast<unsigned int *>(task_data->outputs[1])[i] = output_col_[i];
+    reinterpret_cast<double *>(task_data->outputs[2])[i] = output_[i];
+  }
+  task_data->outputs_count.emplace_back(output_col_.size());
+  task_data->outputs_count.emplace_back(output_.size());
   return true;
 }
