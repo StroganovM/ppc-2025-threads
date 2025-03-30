@@ -364,32 +364,32 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_rnd_50_50_50) {
 
   // Добавление входных данных
   task_data->inputs_count.push_back(a_ri.size());
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(a_ri.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(a_ri.data()));
 
   task_data->inputs_count.push_back(a_col.size());
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(a_col.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(a_col.data()));
 
   task_data->inputs_count.push_back(a_val.size());
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(a_val.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(a_val.data()));
 
   task_data->inputs_count.push_back(b_ri.size());
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(b_ri.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(b_ri.data()));
 
   task_data->inputs_count.push_back(b_col.size());
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(b_col.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(b_col.data()));
 
   task_data->inputs_count.push_back(b_val.size());
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(b_val.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(b_val.data()));
 
   // Добавление выходных данных
   task_data->outputs_count.push_back(out_ri.size());
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ri.data()));
+  task_data->outputs.push_back(reinterpret_cast<uint8_t *>(out_ri.data()));
 
   task_data->outputs_count.push_back(out_col.size());
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_col.data()));
+  task_data->outputs.push_back(reinterpret_cast<uint8_t *>(out_col.data()));
 
   task_data->outputs_count.push_back(out_val.size());
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_val.data()));
+  task_data->outputs.push_back(reinterpret_cast<uint8_t *>(out_val.data()));
 
   // 6. Запуск и проверка
   stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq test_task(task_data);
