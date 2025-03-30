@@ -174,35 +174,56 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
 */
 
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::RunImpl() {
-  output_rI_.clear();
-  output_col_.clear();
-  output_.clear();
-  output_rI_.resize(A_count_rows_ + 1, 0);
-  std::vector<std::unordered_map<unsigned int, double>> temp_result(A_count_rows_);
-  for (unsigned int i = 0; i < A_count_rows_; ++i) {
-    if (i >= A_rI_.size() - 1) continue;
-    for (unsigned int j = A_rI_[i]; j < A_rI_[i + 1]; ++j) {
-      if (j >= col_A_.size() || j >= A_val_.size()) continue;
-      unsigned int col = col_A_[j];
-      double val = A_val_[j];
-      if (col >= B_rI_.size() - 1) continue;
-      for (unsigned int k = B_rI_[col]; k < B_rI_[col + 1]; ++k) {
-        if (k >= col_B_.size() || k >= B_val_.size()) continue;
-        temp_result[i][col_B_[k]] += val * B_val_[k];
+  std::vector<unsigned int> tr_i(*std::ranges::max_element(col_B_.begin(), col_B_.end()) + 2, 0);
+  unsigned int i = 0;
+  unsigned int j = 0;
+  for (i = 0; i < B_count_non_zero_; i++) {
+    tr_i[col_B_[i] + 1]++;
+  }
+  for (i = 1; i < tr_i.size(); i++) {
+    tr_i[i] += tr_i[i - 1];
+  }
+  std::vector<unsigned int> tcol(B_count_non_zero_, 0);
+  std::vector<double> tval(B_count_non_zero_, 0);
+  for (i = 0; i < B_count_rows_ - 1; i++) {
+    for (j = B_rI_[i]; j < B_rI_[i + 1]; j++) {
+      tval[tr_i[col_B_[j]]] = B_val_[j];
+      tcol[tr_i[col_B_[j]]] = i;
+      tr_i[col_B_[j]]++;
+    }
+  }
+  for (i = tr_i.size() - 1; i > 0; i--) {
+    tr_i[i] = tr_i[i - 1];
+  }
+  tr_i[0] = 0;
+  unsigned int ai = 0;
+  unsigned int bt = 0;
+  double sum = 0;
+  for (i = 0; i < A_count_rows_ - 1; i++) {
+    for (j = 0; j < tr_i.size() - 1; j++) {
+      sum = 0;
+      ai = A_rI_[i];
+      bt = tr_i[j];
+      while (ai < A_rI_[i + 1] && bt < tr_i[j + 1]) {
+        if (col_A_[ai] == tcol[bt]) {
+          sum += A_val_[ai] * tval[bt];
+          ai++;
+          bt++;
+        } else if (col_A_[ai] < tcol[bt]) {
+          ai++;
+        } else {
+          bt++;
+        }
+      }
+      if (sum != 0) {
+        output_.push_back(sum);
+        output_col_.push_back(j);
+        output_rI_[i + 1]++;
       }
     }
   }
-  output_rI_[0] = 0;
-  output_col_.reserve(A_count_rows_ * 10);  // Примерное резервирование
-  output_.reserve(A_count_rows_ * 10);
-  for (unsigned int i = 0; i < A_count_rows_; ++i) {
-    output_rI_[i + 1] = output_rI_[i] + static_cast<unsigned int>(temp_result[i].size());
-    std::vector<std::pair<unsigned int, double>> sorted_row(temp_result[i].begin(), temp_result[i].end());
-    std::sort(sorted_row.begin(), sorted_row.end());
-    for (const auto &[col, val] : sorted_row) {
-      output_col_.push_back(col);
-      output_.push_back(val);
-    }
+  for (i = 1; i < A_count_rows_; i++) {
+    output_rI_[i] += output_rI_[i - 1];
   }
   return true;
 }
