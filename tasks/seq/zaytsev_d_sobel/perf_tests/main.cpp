@@ -1,35 +1,47 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/korovin_n_qsort_batcher/include/ops_seq.hpp"
+#include "seq/zaytsev_d_sobel/include/ops_seq.hpp"
 
-TEST(korovin_n_qsort_batcher_seq, test_pipeline_run) {
-  // Create data
-  constexpr int kSize = 250000;
-  std::vector<int> in(kSize);
-  std::vector<int> out(in.size());
+namespace {
+std::vector<int> GenerateRandomImage(size_t size) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<int> dis(0, 255);
 
-  for (int i = 0; i < kSize; i++) {
-    in[i] = kSize - i;
+  std::vector<int> image(size);
+  for (size_t i = 0; i < size; i++) {
+    image[i] = dis(gen);
   }
+  return image;
+}
+}  // namespace
 
-  // Create task_data
+TEST(zaytsev_d_sobel_seq, test_pipeline_run) {
+  constexpr int kSize = 4500;
+
+  std::vector<int> in = GenerateRandomImage(kSize * kSize);
+  std::vector<int> out(kSize * kSize, 0);
+  std::vector<int> size = {kSize, kSize};
+
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(size.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs_count.push_back(size.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  // Create Task
-  auto test_task_sequential = std::make_shared<korovin_n_qsort_batcher_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<zaytsev_d_sobel_seq::TestTaskSequential>(task_data_seq);
 
-  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -39,36 +51,32 @@ TEST(korovin_n_qsort_batcher_seq, test_pipeline_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  ASSERT_NE(in, out);
 }
 
-TEST(korovin_n_qsort_batcher_seq, test_task_run) {
-  // Create data
-  constexpr int kSize = 250000;
-  std::vector<int> in(kSize);
-  std::vector<int> out(in.size());
+TEST(zaytsev_d_sobel_seq, test_task_run) {
+  constexpr int kSize = 4500;
 
-  for (int i = 0; i < kSize; i++) {
-    in[i] = kSize - i;
-  }
+  std::vector<int> in = GenerateRandomImage(kSize * kSize);
+  std::vector<int> out(kSize * kSize, 0);
+  std::vector<int> size = {kSize, kSize};
 
-  // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(size.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs_count.emplace_back(size.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  // Create Task
-  auto test_task_sequential = std::make_shared<korovin_n_qsort_batcher_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<zaytsev_d_sobel_seq::TestTaskSequential>(task_data_seq);
 
-  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -78,11 +86,11 @@ TEST(korovin_n_qsort_batcher_seq, test_task_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  ASSERT_NE(in, out);
 }
