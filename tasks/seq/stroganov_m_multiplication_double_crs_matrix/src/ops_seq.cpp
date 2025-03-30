@@ -113,13 +113,13 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
   for (unsigned int i = 0; i < A_count_rows_; ++i) {
     output_rI_[i + 1] = output_rI_[i] + temp_result[i].size();
     std::vector<std::pair<unsigned int, double>> sorted_row;
-    for (const auto& elem : temp_result[i]) {
+    for (const auto &elem : temp_result[i]) {
       if (elem.second != 0.0) { // Исключаем нулевые значения
         sorted_row.emplace_back(elem);
       }
     }
     std::sort(sorted_row.begin(), sorted_row.end());
-    for (const auto& elem : sorted_row) {
+    for (const auto &elem : sorted_row) {
       output_col_.push_back(elem.first);
       output_.push_back(elem.second);
     }
@@ -139,9 +139,9 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
 
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::PostProcessingImpl() {
   // Получаем указатели на выходные буферы
-  auto* out_rI_ptr = reinterpret_cast<unsigned int *>(task_data->outputs[0]);
-  auto* out_col_ptr = reinterpret_cast<unsigned int *>(task_data->outputs[1]);
-  auto* out_val_ptr = reinterpret_cast<double *>(task_data->outputs[2]);
+  auto *out_rI_ptr = reinterpret_cast<unsigned int *>(task_data->outputs[0]);
+  auto *out_col_ptr = reinterpret_cast<unsigned int *>(task_data->outputs[1]);
+  auto *out_val_ptr = reinterpret_cast<double *>(task_data->outputs[2]);
 
   // Явно приводим типы к size_t перед сравнением
   size_t rI_size = std::min(output_rI_.size(), static_cast<size_t>(task_data->outputs_count[0]));
