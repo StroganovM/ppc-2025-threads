@@ -114,7 +114,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
     output_rI_[i + 1] = output_rI_[i] + temp_result[i].size();
     std::vector<std::pair<unsigned int, double>> sorted_row;
     for (const auto &elem : temp_result[i]) {
-      if (elem.second != 0.0) { // Исключаем нулевые значения
+      if (elem.second != 0.0) {
         sorted_row.emplace_back(elem);
       }
     }
