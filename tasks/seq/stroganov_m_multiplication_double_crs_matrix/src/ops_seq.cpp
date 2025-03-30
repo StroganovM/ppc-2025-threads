@@ -220,7 +220,6 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
   return true;
 }
 
-
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::PostProcessingImpl() {
   std::copy(output_rI_.begin(), output_rI_.end(), reinterpret_cast<unsigned int *>(task_data->outputs[0]));
   std::copy(output_col_.begin(), output_col_.end(), reinterpret_cast<unsigned int *>(task_data->outputs[1]));
