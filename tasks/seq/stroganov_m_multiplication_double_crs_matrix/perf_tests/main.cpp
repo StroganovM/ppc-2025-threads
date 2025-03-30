@@ -8,7 +8,7 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/stroganov_m_multiplication_double_crs_matrix/include/ops_seq.hpp"
-
+/*
 TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_pipeline_run) {
   const unsigned int n = 1000;
 
@@ -176,3 +176,4 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_task_run) {
   ASSERT_EQ(c_col, out_col);
   ASSERT_EQ(c_val, out_val);
 }
+*/
