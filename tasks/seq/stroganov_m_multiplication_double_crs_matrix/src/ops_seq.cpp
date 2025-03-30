@@ -71,6 +71,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
              task_data->inputs_count[3] - 2;
 }
 
+/*
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::RunImpl() {
   output_rI_.resize(A_count_rows_ + 1, 0);
   std::vector<std::unordered_map<unsigned int, double>> temp_result(A_count_rows_);
@@ -100,7 +101,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
   return true;
 }
 
-/*
+
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::RunImpl() {
   output_rI_.resize(A_count_rows_ + 1, 0);
   std::vector<std::unordered_map<unsigned int, double>> temp_result(A_count_rows_);
@@ -135,6 +136,42 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
   return true;
 }
 */
+
+bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::RunImpl() {
+  output_rI_.clear();
+  output_col_.clear();
+  output_.clear();
+  output_rI_.resize(A_count_rows_ + 1, 0);
+  output_col_.reserve(A_count_rows_ * 10);
+  output_.reserve(A_count_rows_ * 10);
+  std::vector<std::unordered_map<unsigned int, double>> temp_result(A_count_rows_);
+  for (unsigned int i = 0; i < A_count_rows_; ++i) {
+    if (i >= A_rI_.size() - 1) continue;
+    for (unsigned int j = A_rI_[i]; j < A_rI_[i + 1]; ++j) {
+      if (j >= col_A_.size() || j >= A_val_.size()) continue;
+      unsigned int col = col_A_[j];
+      double val = A_val_[j];
+      if (col >= B_rI_.size() - 1) continue;
+      for (unsigned int k = B_rI_[col]; k < B_rI_[col + 1]; ++k) {
+        if (k >= col_B_.size() || k >= B_val_.size()) continue;
+        unsigned int col_b = col_B_[k];
+        temp_result[i][col_b] += val * B_val_[k];
+      }
+    }
+  }
+  output_rI_[0] = 0;
+  for (unsigned int i = 0; i < A_count_rows_; ++i) {
+    output_rI_[i + 1] = output_rI_[i] + static_cast<unsigned int>(temp_result[i].size());
+    std::vector<std::pair<unsigned int, double>> sorted_row(temp_result[i].begin(), temp_result[i].end());
+    std::sort(sorted_row.begin(), sorted_row.end());
+    for (const auto &[col, val] : sorted_row) {
+      output_col_.push_back(col);
+      output_.push_back(val);
+    }
+  }
+  return true;
+}
+
 /*
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::PostProcessingImpl() {
   std::copy(output_rI_.begin(), output_rI_.end(), reinterpret_cast<unsigned int *>(task_data->outputs[0]));
