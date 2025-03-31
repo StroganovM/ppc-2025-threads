@@ -171,7 +171,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
   }
   return true;
 }
-*/
+
 
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::RunImpl() {
   std::vector<unsigned int> tr_i(*std::ranges::max_element(col_B_.begin(), col_B_.end()) + 2, 0);
@@ -224,6 +224,55 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
   }
   for (i = 1; i < A_count_rows_; i++) {
     output_rI_[i] += output_rI_[i - 1];
+  }
+  return true;
+}
+*/
+
+bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::RunImpl() {
+  std::vector<unsigned int> tr_i(*std::ranges::max_element(col_B_.begin(), col_B_.end()) + 2, 0);
+  for (unsigned int i = 0; i < B_count_non_zero_; ++i) {
+    ++tr_i[col_B_[i] + 1];
+  }
+  for (unsigned int i = 1; i < tr_i.size(); ++i) {
+    tr_i[i] += tr_i[i - 1];
+  }
+  std::vector<unsigned int> tcol(B_count_non_zero_);
+  std::vector<double> tval(B_count_non_zero_);
+  for (unsigned int i = 0; i < B_count_rows_ - 1; ++i) {
+    for (unsigned int j = B_rI_[i]; j < B_rI_[i + 1]; ++j) {
+      unsigned int idx = tr_i[col_B_[j]]++;
+      tval[idx] = B_val_[j];
+      tcol[idx] = i;
+    }
+  }
+  std::rotate(tr_i.rbegin(), tr_i.rbegin() + 1, tr_i.rend());
+  tr_i[0] = 0;
+  for (unsigned int i = 0; i < A_count_rows_ - 1; ++i) {
+    for (unsigned int j = 0; j < tr_i.size() - 1; ++j) {
+      double sum = 0;
+      unsigned int ai = A_rI_[i], bt = tr_i[j];
+      while (ai < A_rI_[i + 1] && bt < tr_i[j + 1]) {
+        if (col_A_[ai] == tcol[bt]) {
+          sum += A_val_[ai] * tval[bt];
+          ++ai;
+          ++bt;
+        }
+        else if (col_A_[ai] < tcol[bt]) {
+          ++ai;
+        } else {
+          ++bt;
+        }
+      }
+      if (sum != 0) {
+         output_.push_back(sum);
+         output_col_.push_back(j);
+         ++output_rI_[i + 1];
+      }
+    }
+  }
+  for (unsigned int i = 1; i < A_count_rows_; ++i) {
+  output_rI_[i] += output_rI_[i - 1];
   }
   return true;
 }
