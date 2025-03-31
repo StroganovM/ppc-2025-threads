@@ -257,22 +257,21 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
           sum += A_val_[ai] * tval[bt];
           ++ai;
           ++bt;
-        }
-        else if (col_A_[ai] < tcol[bt]) {
+        } else if (col_A_[ai] < tcol[bt]) {
           ++ai;
         } else {
           ++bt;
         }
       }
       if (sum != 0) {
-         output_.push_back(sum);
-         output_col_.push_back(j);
-         ++output_rI_[i + 1];
+        output_.push_back(sum);
+        output_col_.push_back(j);
+        ++output_rI_[i + 1];
       }
     }
   }
   for (unsigned int i = 1; i < A_count_rows_; ++i) {
-  output_rI_[i] += output_rI_[i - 1];
+    output_rI_[i] += output_rI_[i - 1];
   }
   return true;
 }
