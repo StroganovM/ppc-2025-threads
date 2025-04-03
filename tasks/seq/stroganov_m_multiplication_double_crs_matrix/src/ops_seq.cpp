@@ -113,7 +113,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
       const unsigned int idx = tr_i[col]++;
       tval[idx] = B_val_[j];
       tcol[idx] = i;
-      }
+    }
   }
   std::rotate(tr_i.begin(), tr_i.end() - 1, tr_i.end());
   tr_i[0] = 0;
