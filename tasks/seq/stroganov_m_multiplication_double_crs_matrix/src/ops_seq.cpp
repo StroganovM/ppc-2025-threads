@@ -130,11 +130,9 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
           sum += A_val_[a_pos] * tval[b_pos];
           ++a_pos;
           ++b_pos;
-        }
-        else if (col_A_[a_pos] < tcol[b_pos]) {
+        } else if (col_A_[a_pos] < tcol[b_pos]) {
           ++a_pos;
-        }
-        else {
+        } else {
           ++b_pos;
         }
       }
