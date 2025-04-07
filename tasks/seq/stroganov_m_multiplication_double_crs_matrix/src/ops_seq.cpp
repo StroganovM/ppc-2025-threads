@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <vector>
 
-
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::PreProcessingImpl() {
   A_count_rows_ = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<unsigned int *>(task_data->inputs[0]);
