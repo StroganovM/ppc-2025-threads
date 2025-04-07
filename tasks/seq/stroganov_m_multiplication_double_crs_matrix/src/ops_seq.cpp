@@ -1,11 +1,11 @@
 #include "seq/stroganov_m_multiplication_double_crs_matrix/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <vector>
-#include <unordered_map>
 #include <iostream>
-#include <algorithm>
+#include <unordered_map>
+#include <vector>
 
 
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::PreProcessingImpl() {
@@ -15,7 +15,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
 
   A_count_non_zero_ = task_data->inputs_count[1];
   in_ptr = reinterpret_cast<unsigned int *>(task_data->inputs[1]);
-  col_A_ = std::vector<unsigned int>(in_ptr, in_ptr +  A_count_non_zero_);
+  col_A_ = std::vector<unsigned int>(in_ptr, in_ptr + A_count_non_zero_);
 
   auto *val_ptr = reinterpret_cast<double *>(task_data->inputs[2]);
   A_val_ = std::vector<double>(val_ptr, val_ptr + A_count_non_zero_);
@@ -37,28 +37,12 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
 }
 
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::ValidationImpl() {
-  if (task_data->inputs_count[1] != task_data->inputs_count[2]) {
-    return false;
-  }
-  if (task_data->inputs_count[4] != task_data->inputs_count[5]) {
-    return false;
-  }
-  if (task_data->inputs_count[0] != task_data->outputs_count[0]) {
-    return false;
-  }
-  if (A_count_rows_ > 0 && !col_A_.empty()) {
-    unsigned int max_col_A = *std::max_element(col_A_.begin(), col_A_.end());
-    if (max_col_A >= B_count_rows_) {
-      return false;
-    }
-  }
-  if (!A_rI_.empty() && A_rI_.back() != A_count_non_zero_) {
-    return false;
-  }
-  if (!B_rI_.empty() && B_rI_.back() != B_count_non_zero_) {
-    return false;
-  }
-  return true;
+  return task_data->inputs_count[1] == task_data->inputs_count[2] &&
+         task_data->inputs_count[4] == task_data->inputs_count[5] &&
+         task_data->inputs_count[0] == task_data->outputs_count[0] &&
+         *std::max_element(reinterpret_cast<unsigned int *>(task_data->inputs[1]),
+                           reinterpret_cast<unsigned int *>(task_data->inputs[1]) + task_data->inputs_count[1]) <=
+             task_data->inputs_count[3] - 2;
 }
 
 bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSeq::RunImpl() {
@@ -82,7 +66,7 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::MuitiplicationCrsMatrixSe
     output_rI_[i + 1] = output_rI_[i] + static_cast<unsigned int>(temp_result[i].size());
     std::vector<std::pair<unsigned int, double>> sorted_row(temp_result[i].begin(), temp_result[i].end());
     std::sort(sorted_row.begin(), sorted_row.end());
-    for (const auto& [col, val] : sorted_row) {
+    for (const auto &[col, val] : sorted_row) {
       output_col_.push_back(col);
       output_.push_back(val);
     }
