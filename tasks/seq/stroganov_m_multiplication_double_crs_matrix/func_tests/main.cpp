@@ -31,11 +31,11 @@ std::vector<double> GetRandomMatrix(unsigned int m, unsigned int n) {
 TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_identity) {
   // Тест с единичной матрицей 5x5 (разреженная)
   constexpr int kSize = 5;
-  constexpr double kTolerance = 1e-9; // Допустимая погрешность для double
+  constexpr double kTolerance = 1e-9;  // Допустимая погрешность для double
 
   // Создаем входные данные (единичная матрица в плотном формате)
   std::vector<double> in(kSize * kSize, 0.0);
-  std::vector<double> out(kSize * kSize, -1.0); // Инициализируем не нулями для проверки
+  std::vector<double> out(kSize * kSize, -1.0);  // Инициализируем не нулями для проверки
 
   // Заполняем диагональ единицами
   for (int i = 0; i < kSize; i++) {
@@ -45,11 +45,11 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_identity) {
   // Создаем task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data())); // Умножаем на себя
-  task_data->inputs_count.emplace_back(kSize);  // rows A
-  task_data->inputs_count.emplace_back(kSize);  // cols A
-  task_data->inputs_count.emplace_back(kSize);  // rows B
-  task_data->inputs_count.emplace_back(kSize);  // cols B
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));  // Умножаем на себя
+  task_data->inputs_count.emplace_back(kSize);                            // rows A
+  task_data->inputs_count.emplace_back(kSize);                            // cols A
+  task_data->inputs_count.emplace_back(kSize);                            // rows B
+  task_data->inputs_count.emplace_back(kSize);                            // cols B
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(kSize * kSize);
 
@@ -74,7 +74,6 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_identity) {
 
   // Дополнительная проверка - результат должен быть равен входной матрице
   for (int i = 0; i < kSize * kSize; i++) {
-    EXPECT_NEAR(out[i], in[i], kTolerance)
-        << "Full matrix mismatch at index " << i;
+    EXPECT_NEAR(out[i], in[i], kTolerance) << "Full matrix mismatch at index " << i;
   }
 }

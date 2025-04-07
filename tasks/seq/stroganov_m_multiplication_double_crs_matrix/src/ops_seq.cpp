@@ -75,12 +75,12 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicatio
 bool stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicationCRS::PostProcessingImpl() {
   // Проверка на положительные размеры матрицы
   if (res_rows_ <= 0 || res_cols_ <= 0) {
-    return false; // или throw std::invalid_argument("Invalid matrix dimensions");
+    return false;  // или throw std::invalid_argument("Invalid matrix dimensions");
   }
 
   // Проверка на переполнение при умножении размеров
   if (res_rows_ > INT_MAX / res_cols_) {
-    return false; // или throw std::overflow_error("Matrix size too large");
+    return false;  // или throw std::overflow_error("Matrix size too large");
   }
 
   const int output_size_ = res_rows_ * res_cols_;
@@ -100,9 +100,9 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicatio
   return true;
 }
 
-void stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicationCRS::convertToCRS(const double* input_, int rows_, int cols_,
-                                               std::vector<double>& values_, std::vector<int>& columns_,
-                                               std::vector<int>& row_ptr_, int& out_rows_, int& out_cols_) {
+void stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicationCRS::convertToCRS(
+    const double* input_, int rows_, int cols_, std::vector<double>& values_, std::vector<int>& columns_,
+    std::vector<int>& row_ptr_, int& out_rows_, int& out_cols_) {
   out_rows_ = rows_;
   out_cols_ = cols_;
   row_ptr_.resize(rows_ + 1, 0);
