@@ -84,7 +84,7 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_random_sparse_matrices) {
   constexpr int kColsA = 20;
   constexpr int kRowsB = 20;
   constexpr int kColsB = 15;
-  constexpr double kSparsity = 0.1; // 10% ненулевых элементов
+  constexpr double kSparsity = 0.1;  // 10% ненулевых элементов
   constexpr double kTolerance = 1e-6;
 
   // Генерируем случайные разреженные матрицы
@@ -152,21 +152,11 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_rectangular_matrices) {
   constexpr double kTolerance = 1e-9;
 
   // Создаем тестовые матрицы
-  std::vector<double> A = {
-      1.0, 0.0, 0.0, 2.0,
-      0.0, 3.0, 0.0, 0.0,
-      0.0, 0.0, 4.0, 0.0};
+  std::vector<double> A = {1.0, 0.0, 0.0, 2.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0};
 
-  std::vector<double> B = {
-      0.0, 1.0,
-      2.0, 0.0,
-      0.0, 3.0,
-      4.0, 0.0};
+  std::vector<double> B = {0.0, 1.0, 2.0, 0.0, 0.0, 3.0, 4.0, 0.0};
 
-  std::vector<double> expected = {
-      8.0, 1.0,
-      6.0, 0.0,
-      0.0, 12.0};
+  std::vector<double> expected = {8.0, 1.0, 6.0, 0.0, 0.0, 12.0};
 
   std::vector<double> out(kRowsA * kColsB, -1.0);
 
@@ -200,7 +190,7 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_invalid_dimensions) {
   // Тест с несовместимыми размерами матриц
   constexpr int kRowsA = 3;
   constexpr int kColsA = 4;
-  constexpr int kRowsB = 5; // Несовместимое количество строк
+  constexpr int kRowsB = 5; //  Несовместимое количество строк
   constexpr int kColsB = 2;
 
   std::vector<double> A(kRowsA * kColsA, 1.0);
