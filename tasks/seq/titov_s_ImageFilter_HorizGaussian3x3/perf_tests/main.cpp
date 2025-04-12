@@ -11,8 +11,8 @@
 #include "seq/titov_s_ImageFilter_HorizGaussian3x3/include/ops_seq.hpp"
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_pipeline_run) {
-  constexpr size_t kWidth = 8000;
-  constexpr size_t kHeight = 8000;
+  constexpr size_t kWidth = 15000;
+  constexpr size_t kHeight = 15000;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
   std::vector<double> output_image(kWidth * kHeight, 0.0);
   std::vector<int> kernel = {1, 2, 1};
@@ -54,8 +54,8 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_pipeline_run) {
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_task_run) {
-  constexpr size_t kWidth = 20000;
-  constexpr size_t kHeight = 20000;
+  constexpr size_t kWidth = 15000;
+  constexpr size_t kHeight = 15000;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
   std::vector<double> output_image(kWidth * kHeight, 0.0);
   std::vector<int> kernel = {1, 2, 1};

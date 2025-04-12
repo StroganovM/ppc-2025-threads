@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -9,19 +10,27 @@
 #include "core/task/include/task.hpp"
 #include "seq/malyshev_a_increase_contrast_by_histogram/include/ops_seq.hpp"
 
+namespace {
+
+void FillData(std::vector<int> &data) {
+  uint8_t tmp = 20;
+  for (size_t i = 0; i < data.size(); i++) {
+    data[i] = tmp++;
+    if (tmp == 240) {
+      tmp = 20;
+    }
+  }
+}
+
+}  // namespace
+
 TEST(malyshev_a_increase_contrast_by_histogram_seq, test_pipeline_run) {
   constexpr int kCount = 150000000;
 
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
 
-  uint8_t tmp = 20;
-  for (int i = 0; i < kCount; i++) {
-    in[i] = tmp++;
-    if (tmp == 240) {
-      tmp = 20;
-    }
-  }
+  FillData(in);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -54,13 +63,7 @@ TEST(malyshev_a_increase_contrast_by_histogram_seq, test_task_run) {
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
 
-  uint8_t tmp = 20;
-  for (int i = 0; i < kCount; i++) {
-    in[i] = tmp++;
-    if (tmp == 240) {
-      tmp = 20;
-    }
-  }
+  FillData(in);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));

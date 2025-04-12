@@ -1,4 +1,4 @@
-﻿#include <gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <chrono>
 #include <cmath>
@@ -16,8 +16,8 @@ TEST(shurigin_s_integrals_square_seq, test_pipeline_run) {
   double up_limit_x = 1.0;
   double down_limit_y = -1.0;
   double up_limit_y = 1.0;
-  int count_x = 1000;
-  int count_y = 1000;
+  int count_x = 5000;
+  int count_y = 5000;
   std::vector<double> inputs{
       down_limit_x, down_limit_y, up_limit_x, up_limit_y, static_cast<double>(count_x), static_cast<double>(count_y)};
   double result = 0.0;
@@ -58,8 +58,8 @@ TEST(shurigin_s_integrals_square_seq, test_task_run) {
   double up_limit_x = 1.0;
   double down_limit_y = -1.0;
   double up_limit_y = 1.0;
-  int count_x = 1000;
-  int count_y = 1000;
+  int count_x = 5000;
+  int count_y = 5000;
   std::vector<double> inputs{
       down_limit_x, down_limit_y, up_limit_x, up_limit_y, static_cast<double>(count_x), static_cast<double>(count_y)};
   double result = 0.0;

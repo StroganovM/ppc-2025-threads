@@ -17,7 +17,7 @@
 const long long int kMinLl = std::numeric_limits<long long>::lowest(), kMaxLl = std::numeric_limits<long long>::max();
 
 TEST(kovalev_k_radix_sort_batcher_merge_seq, test_pipeline_run) {
-  const unsigned int length = 1000000;
+  const unsigned int length = 20000000;
   std::srand(std::time(nullptr));
   const int alpha = rand();
   std::vector<long long int> in(length, alpha);
@@ -51,7 +51,7 @@ TEST(kovalev_k_radix_sort_batcher_merge_seq, test_pipeline_run) {
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_seq, test_task_run) {
-  const unsigned int length = 9000000;
+  const unsigned int length = 20000000;
   std::vector<long long int> in(length);
   std::vector<long long int> out(length);
   std::random_device rd;
