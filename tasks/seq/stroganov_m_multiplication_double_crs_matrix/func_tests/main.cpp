@@ -190,7 +190,7 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_invalid_dimensions) {
   // Тест с несовместимыми размерами матриц
   constexpr int kRowsA = 3;
   constexpr int kColsA = 4;
-  constexpr int kRowsB = 5; //  Несовместимое количество строк
+  constexpr int kRowsB = 5;  // Несовместимое количество строк
   constexpr int kColsB = 2;
 
   std::vector<double> A(kRowsA * kColsA, 1.0);
