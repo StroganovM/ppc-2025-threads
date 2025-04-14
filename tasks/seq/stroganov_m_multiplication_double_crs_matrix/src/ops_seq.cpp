@@ -8,21 +8,31 @@
 #include <vector>
 
 bool stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicationCRS::PreProcessingImpl() {
-  // Получаем данные о размерах матриц
   A_rows_ = static_cast<int>(task_data->inputs_count[0]);
   A_cols_ = static_cast<int>(task_data->inputs_count[1]);
   B_rows_ = static_cast<int>(task_data->inputs_count[2]);
   B_cols_ = static_cast<int>(task_data->inputs_count[3]);
 
-  // Получаем указатели на входные данные
-  auto* matrixA_data = reinterpret_cast<double*>(task_data->inputs[0]);
-  auto* matrixB_data = reinterpret_cast<double*>(task_data->inputs[1]);
+  // Прямое чтение CRS-структур из inputs
+  auto* A_values_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
+  auto* A_columns_ptr = reinterpret_cast<int*>(task_data->inputs[1]);
+  auto* A_row_ptr_ptr = reinterpret_cast<int*>(task_data->inputs[2]);
 
-  // Конвертируем матрицы в формат CRS
-  convertToCRS(matrixA_data, A_rows_, A_cols_, A_values_, A_columns_, A_row_ptr_, A_rows_, A_cols_);
-  convertToCRS(matrixB_data, B_rows_, B_cols_, B_values_, B_columns_, B_row_ptr_, B_rows_, B_cols_);
+  auto* B_values_ptr = reinterpret_cast<double*>(task_data->inputs[3]);
+  auto* B_columns_ptr = reinterpret_cast<int*>(task_data->inputs[4]);
+  auto* B_row_ptr_ptr = reinterpret_cast<int*>(task_data->inputs[5]);
 
-  // Инициализируем результирующую матрицу
+  size_t A_nnz = static_cast<size_t>(task_data->inputs_count[4]);
+  size_t B_nnz = static_cast<size_t>(task_data->inputs_count[5]);
+
+  A_values_ = std::vector<double>(A_values_ptr, A_values_ptr + A_nnz);
+  A_columns_ = std::vector<int>(A_columns_ptr, A_columns_ptr + A_nnz);
+  A_row_ptr_ = std::vector<int>(A_row_ptr_ptr, A_row_ptr_ptr + A_rows_ + 1);
+
+  B_values_ = std::vector<double>(B_values_ptr, B_values_ptr + B_nnz);
+  B_columns_ = std::vector<int>(B_columns_ptr, B_columns_ptr + B_nnz);
+  B_row_ptr_ = std::vector<int>(B_row_ptr_ptr, B_row_ptr_ptr + B_rows_ + 1);
+
   res_rows_ = A_rows_;
   res_cols_ = B_cols_;
   res_row_ptr_.resize(res_rows_ + 1, 0);
@@ -98,44 +108,4 @@ bool stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicatio
   }
 
   return true;
-}
-
-void stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicationCRS::convertToCRS(
-    const double* input_, int rows_, int cols_, std::vector<double>& values_, std::vector<int>& columns_,
-    std::vector<int>& row_ptr_, int& out_rows_, int& out_cols_) {
-  out_rows_ = rows_;
-  out_cols_ = cols_;
-  row_ptr_.resize(rows_ + 1, 0);
-
-  // Первый проход: подсчет ненулевых элементов в каждой строке
-  for (int i = 0; i < rows_; ++i) {
-    for (int j = 0; j < cols_; ++j) {
-      if (input_[i * cols_ + j] != 0.0) {
-        row_ptr_[i + 1]++;
-      }
-    }
-  }
-
-  // Преобразование в кумулятивные суммы
-  for (int i = 1; i <= rows_; ++i) {
-    row_ptr_[i] += row_ptr_[i - 1];
-  }
-
-  // Второй проход: заполнение values и columns
-  values_.resize(row_ptr_[rows_]);
-  columns_.resize(row_ptr_[rows_]);
-
-  std::vector<int> current_pos_(rows_, 0);
-
-  for (int i = 0; i < rows_; ++i) {
-    for (int j = 0; j < cols_; ++j) {
-      double val = input_[i * cols_ + j];
-      if (val != 0.0) {
-        int offset = row_ptr_[i] + current_pos_[i];
-        values_[offset] = val;
-        columns_[offset] = j;
-        current_pos_[i]++;
-      }
-    }
-  }
 }
