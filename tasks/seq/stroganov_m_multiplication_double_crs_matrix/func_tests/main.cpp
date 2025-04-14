@@ -272,8 +272,7 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_invalid_dimensions) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()),  reinterpret_cast<uint8_t*>(A_columns.data()),
                        reinterpret_cast<uint8_t*>(A_row_ptr.data()), reinterpret_cast<uint8_t*>(B_values.data()),
-                       reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())
-  };
+                       reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())};
 
   task_data->inputs_count = {static_cast<std::uint32_t>(A_rows),          static_cast<std::uint32_t>(A_cols),
                              static_cast<std::uint32_t>(B_rows),          static_cast<std::uint32_t>(B_cols),
@@ -298,16 +297,15 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_zero_matrix) {
   std::vector<int> A_columns, A_row_ptr, B_columns, B_row_ptr;
   int A_rows, A_cols, B_rows, B_cols;
 
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(zero_dense.data(), kSize, kSize, A_values,
-                                                                 A_columns, A_row_ptr, A_rows, A_cols);
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(zero_dense.data(), kSize, kSize, B_values,
-                                                                 B_columns, B_row_ptr, B_rows, B_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(zero_dense.data(), kSize, kSize, A_values, A_columns,
+                                                                 A_row_ptr, A_rows, A_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(zero_dense.data(), kSize, kSize, B_values, B_columns,
+                                                                 B_row_ptr, B_rows, B_cols);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()),  reinterpret_cast<uint8_t*>(A_columns.data()),
                        reinterpret_cast<uint8_t*>(A_row_ptr.data()), reinterpret_cast<uint8_t*>(B_values.data()),
-                       reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())
-  };
+                       reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())};
 
   task_data->inputs_count = {static_cast<std::uint32_t>(A_rows),          static_cast<std::uint32_t>(A_cols),
                              static_cast<std::uint32_t>(B_rows),          static_cast<std::uint32_t>(B_cols),
