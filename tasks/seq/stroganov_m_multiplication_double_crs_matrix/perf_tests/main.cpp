@@ -32,7 +32,7 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_pipeline_run) {
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs = {reinterpret_cast<uint8_t*>(a_val.data()), reinterpret_cast<uint8_t*>(a_col.data()),
-                       reinterpret_cast<uint8_t*>(a_ri.data()), reinterpret_cast<uint8_t*>(b_val.data()),
+                       reinterpret_cast<uint8_t*>(a_ri.data()),  reinterpret_cast<uint8_t*>(b_val.data()),
                        reinterpret_cast<uint8_t*>(b_col.data()), reinterpret_cast<uint8_t*>(b_ri.data())};
 
   task_data->inputs_count = {static_cast<std::uint32_t>(n),
@@ -95,7 +95,7 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_task_run) {
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs = {reinterpret_cast<uint8_t*>(a_val.data()), reinterpret_cast<uint8_t*>(a_col.data()),
-                       reinterpret_cast<uint8_t*>(a_ri.data()), reinterpret_cast<uint8_t*>(b_val.data()),
+                       reinterpret_cast<uint8_t*>(a_ri.data()),  reinterpret_cast<uint8_t*>(b_val.data()),
                        reinterpret_cast<uint8_t*>(b_col.data()), reinterpret_cast<uint8_t*>(b_ri.data())};
 
   task_data->inputs_count = {static_cast<std::uint32_t>(n),

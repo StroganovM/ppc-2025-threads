@@ -33,7 +33,6 @@ class SparseMatrixMultiplicationCRS : public ppc::core::Task {
   std::vector<int> res_columns_;
   std::vector<int> res_row_ptr_;
   int res_rows_, res_cols_;
-
 };
 void convertToCRS(const double* input, int rows, int cols, std::vector<double>& values, std::vector<int>& columns,
                   std::vector<int>& row_ptr, int& out_rows, int& out_cols);

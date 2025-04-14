@@ -91,12 +91,12 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_identity) {
   std::vector<double> out(kSize * kSize, -1.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()), reinterpret_cast<uint8_t*>(A_columns.data()),
+  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()),  reinterpret_cast<uint8_t*>(A_columns.data()),
                        reinterpret_cast<uint8_t*>(A_row_ptr.data()), reinterpret_cast<uint8_t*>(B_values.data()),
                        reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())};
 
-  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows), static_cast<std::uint32_t>(A_cols),
-                             static_cast<std::uint32_t>(B_rows), static_cast<std::uint32_t>(B_cols),
+  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows),          static_cast<std::uint32_t>(A_cols),
+                             static_cast<std::uint32_t>(B_rows),          static_cast<std::uint32_t>(B_cols),
                              static_cast<std::uint32_t>(A_values.size()), static_cast<std::uint32_t>(B_values.size())};
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
@@ -168,20 +168,20 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_random_sparse_matrices) {
   std::vector<int> A_columns, A_row_ptr, B_columns, B_row_ptr;
   int A_rows, A_cols, B_rows, B_cols;
 
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(A_dense.data(), kRowsA, kColsA, A_values,
-                                                                 A_columns, A_row_ptr, A_rows, A_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(A_dense.data(), kRowsA, kColsA, A_values, A_columns,
+                                                                 A_row_ptr, A_rows, A_cols);
 
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(B_dense.data(), kRowsB, kColsB, B_values,
-                                                                 B_columns, B_row_ptr, B_rows, B_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(B_dense.data(), kRowsB, kColsB, B_values, B_columns,
+                                                                 B_row_ptr, B_rows, B_cols);
 
   // Настройка task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()), reinterpret_cast<uint8_t*>(A_columns.data()),
+  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()),  reinterpret_cast<uint8_t*>(A_columns.data()),
                        reinterpret_cast<uint8_t*>(A_row_ptr.data()), reinterpret_cast<uint8_t*>(B_values.data()),
                        reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())};
 
-  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows), static_cast<std::uint32_t>(A_cols),
-                             static_cast<std::uint32_t>(B_rows), static_cast<std::uint32_t>(B_cols),
+  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows),          static_cast<std::uint32_t>(A_cols),
+                             static_cast<std::uint32_t>(B_rows),          static_cast<std::uint32_t>(B_cols),
                              static_cast<std::uint32_t>(A_values.size()), static_cast<std::uint32_t>(B_values.size())};
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
@@ -218,18 +218,18 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_rectangular_matrices) {
   std::vector<int> A_columns, A_row_ptr, B_columns, B_row_ptr;
   int A_rows, A_cols, B_rows, B_cols;
 
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(A_dense.data(), kRowsA, kColsA, A_values,
-                                                                 A_columns, A_row_ptr, A_rows, A_cols);
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(B_dense.data(), kRowsB, kColsB, B_values,
-                                                                 B_columns, B_row_ptr, B_rows, B_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(A_dense.data(), kRowsA, kColsA, A_values, A_columns,
+                                                                 A_row_ptr, A_rows, A_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(B_dense.data(), kRowsB, kColsB, B_values, B_columns,
+                                                                 B_row_ptr, B_rows, B_cols);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()), reinterpret_cast<uint8_t*>(A_columns.data()),
+  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()),  reinterpret_cast<uint8_t*>(A_columns.data()),
                        reinterpret_cast<uint8_t*>(A_row_ptr.data()), reinterpret_cast<uint8_t*>(B_values.data()),
                        reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())};
 
-  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows), static_cast<std::uint32_t>(A_cols),
-                             static_cast<std::uint32_t>(B_rows), static_cast<std::uint32_t>(B_cols),
+  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows),          static_cast<std::uint32_t>(A_cols),
+                             static_cast<std::uint32_t>(B_rows),          static_cast<std::uint32_t>(B_cols),
                              static_cast<std::uint32_t>(A_values.size()), static_cast<std::uint32_t>(B_values.size())};
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
@@ -264,23 +264,20 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_invalid_dimensions) {
   std::vector<int> A_columns, A_row_ptr, B_columns, B_row_ptr;
   int A_rows, A_cols, B_rows, B_cols;
 
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(A_dense.data(), kRowsA, kColsA, A_values,
-                                                                 A_columns, A_row_ptr, A_rows, A_cols);
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(B_dense.data(), kRowsB, kColsB, B_values,
-                                                                 B_columns, B_row_ptr, B_rows, B_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(A_dense.data(), kRowsA, kColsA, A_values, A_columns,
+                                                                 A_row_ptr, A_rows, A_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(B_dense.data(), kRowsB, kColsB, B_values, B_columns,
+                                                                 B_row_ptr, B_rows, B_cols);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()), reinterpret_cast<uint8_t*>(A_columns.data()),
+  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()),  reinterpret_cast<uint8_t*>(A_columns.data()),
                        reinterpret_cast<uint8_t*>(A_row_ptr.data()), reinterpret_cast<uint8_t*>(B_values.data()),
                        reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())
   };
 
-  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows),
-                             static_cast<std::uint32_t>(A_cols),
-                             static_cast<std::uint32_t>(B_rows),
-                             static_cast<std::uint32_t>(B_cols),
-                             static_cast<std::uint32_t>(A_values.size()),
-                             static_cast<std::uint32_t>(B_values.size())};
+  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows),          static_cast<std::uint32_t>(A_cols),
+                             static_cast<std::uint32_t>(B_rows),          static_cast<std::uint32_t>(B_cols),
+                             static_cast<std::uint32_t>(A_values.size()), static_cast<std::uint32_t>(B_values.size())};
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(kRowsA * kColsB));
@@ -307,17 +304,14 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_zero_matrix) {
                                                                  B_columns, B_row_ptr, B_rows, B_cols);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()), reinterpret_cast<uint8_t*>(A_columns.data()),
+  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()),  reinterpret_cast<uint8_t*>(A_columns.data()),
                        reinterpret_cast<uint8_t*>(A_row_ptr.data()), reinterpret_cast<uint8_t*>(B_values.data()),
                        reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())
   };
 
-  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows),
-                             static_cast<std::uint32_t>(A_cols),
-                             static_cast<std::uint32_t>(B_rows),
-                             static_cast<std::uint32_t>(B_cols),
-                             static_cast<std::uint32_t>(A_values.size()),
-                             static_cast<std::uint32_t>(B_values.size())};
+  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows),          static_cast<std::uint32_t>(A_cols),
+                             static_cast<std::uint32_t>(B_rows),          static_cast<std::uint32_t>(B_cols),
+                             static_cast<std::uint32_t>(A_values.size()), static_cast<std::uint32_t>(B_values.size())};
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(kSize * kSize));
