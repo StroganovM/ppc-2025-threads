@@ -14,7 +14,7 @@
 #include "core/task/include/task.hpp"
 #include "omp/tyshkevich_a_hoare_simple_merge/include/ops_omp.hpp"
 
-constexpr size_t kTestSequenceSize = 55555;
+constexpr size_t kTestSequenceSize = 56055;
 
 namespace {
 template <typename T>
