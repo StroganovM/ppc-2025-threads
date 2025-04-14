@@ -36,7 +36,7 @@ class SparseMatrixMultiplicationCRS : public ppc::core::Task {
 
 };
 void convertToCRS(const double* input, int rows, int cols, std::vector<double>& values, std::vector<int>& columns,
-                    std::vector<int>& row_ptr, int& out_rows, int& out_cols);
+                  std::vector<int>& row_ptr, int& out_rows, int& out_cols);
 
 std::vector<double> GetRandomMatrix(unsigned int m, unsigned int n);
 

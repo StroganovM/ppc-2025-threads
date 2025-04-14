@@ -31,28 +31,22 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_pipeline_run) {
   std::vector<double> out(n * n, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {
-      reinterpret_cast<uint8_t*>(a_val.data()),
-      reinterpret_cast<uint8_t*>(a_col.data()),
-      reinterpret_cast<uint8_t*>(a_ri.data()),
-      reinterpret_cast<uint8_t*>(b_val.data()),
-      reinterpret_cast<uint8_t*>(b_col.data()),
-      reinterpret_cast<uint8_t*>(b_ri.data())
-  };
+  task_data->inputs = {reinterpret_cast<uint8_t*>(a_val.data()), reinterpret_cast<uint8_t*>(a_col.data()),
+                       reinterpret_cast<uint8_t*>(a_ri.data()), reinterpret_cast<uint8_t*>(b_val.data()),
+                       reinterpret_cast<uint8_t*>(b_col.data()), reinterpret_cast<uint8_t*>(b_ri.data())};
 
-  task_data->inputs_count = {
-      static_cast<std::uint32_t>(n),
-      static_cast<std::uint32_t>(n),
-      static_cast<std::uint32_t>(n),
-      static_cast<std::uint32_t>(n),
-      static_cast<std::uint32_t>(a_val.size()),
-      static_cast<std::uint32_t>(b_val.size())
-  };
+  task_data->inputs_count = {static_cast<std::uint32_t>(n),
+                             static_cast<std::uint32_t>(n),
+                             static_cast<std::uint32_t>(n),
+                             static_cast<std::uint32_t>(n),
+                             static_cast<std::uint32_t>(a_val.size()),
+                             static_cast<std::uint32_t>(b_val.size())};
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(n * n));
 
-  auto task = std::make_shared<stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicationCRS>(task_data);
+  auto task =
+      std::make_shared<stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicationCRS>(task_data);
 
   // Производительность
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -100,29 +94,23 @@ TEST(stroganov_m_multiplication_double_crs_matrix_seq, test_task_run) {
   std::vector<double> out(n * n, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {
-      reinterpret_cast<uint8_t*>(a_val.data()),
-      reinterpret_cast<uint8_t*>(a_col.data()),
-      reinterpret_cast<uint8_t*>(a_ri.data()),
-      reinterpret_cast<uint8_t*>(b_val.data()),
-      reinterpret_cast<uint8_t*>(b_col.data()),
-      reinterpret_cast<uint8_t*>(b_ri.data())
-  };
+  task_data->inputs = {reinterpret_cast<uint8_t*>(a_val.data()), reinterpret_cast<uint8_t*>(a_col.data()),
+                       reinterpret_cast<uint8_t*>(a_ri.data()), reinterpret_cast<uint8_t*>(b_val.data()),
+                       reinterpret_cast<uint8_t*>(b_col.data()), reinterpret_cast<uint8_t*>(b_ri.data())};
 
-  task_data->inputs_count = {
-      static_cast<std::uint32_t>(n),  // A_rows
-      static_cast<std::uint32_t>(n),  // A_cols
-      static_cast<std::uint32_t>(n),  // B_rows
-      static_cast<std::uint32_t>(n),  // B_cols
-      static_cast<std::uint32_t>(a_val.size()),  // nnz A
-      static_cast<std::uint32_t>(b_val.size())   // nnz B
-  };
+  task_data->inputs_count = {static_cast<std::uint32_t>(n),
+                             static_cast<std::uint32_t>(n),
+                             static_cast<std::uint32_t>(n),
+                             static_cast<std::uint32_t>(n),
+                             static_cast<std::uint32_t>(a_val.size()),
+                             static_cast<std::uint32_t>(b_val.size())};
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(n * n));
 
   // Создание задачи
-  auto test_task = std::make_shared<stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicationCRS>(task_data);
+  auto test_task =
+      std::make_shared<stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicationCRS>(task_data);
 
   // Настройка замера времени
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

@@ -27,9 +27,8 @@ std::vector<double> GetRandomMatrix(unsigned int m, unsigned int n) {
   return res;
 }
 
-void convertToCRS(
-    const double* input_, int rows_, int cols_, std::vector<double>& values_, std::vector<int>& columns_,
-    std::vector<int>& row_ptr_, int& out_rows_, int& out_cols_) {
+void convertToCRS(const double* input_, int rows_, int cols_, std::vector<double>& values_, std::vector<int>& columns_,
+                  std::vector<int>& row_ptr_, int& out_rows_, int& out_cols_) {
   out_rows_ = rows_;
   out_cols_ = cols_;
   row_ptr_.resize(rows_ + 1, 0);
@@ -67,109 +66,6 @@ void convertToCRS(
   }
 }
 }  // namespace stroganov_m_multiplication_double_crs_matrix_seq
-/*
-TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_rectangular_matrices) {
-  // Тест с прямоугольными матрицами
-  constexpr int kRowsA = 3;
-  constexpr int kColsA = 4;
-  constexpr int kRowsB = 4;
-  constexpr int kColsB = 2;
-  constexpr double kTolerance = 1e-9;
-
-  // Создаем тестовые матрицы
-  std::vector<double> A = {1.0, 0.0, 0.0, 2.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0};
-
-  std::vector<double> B = {0.0, 1.0, 2.0, 0.0, 0.0, 3.0, 4.0, 0.0};
-
-  std::vector<double> expected = {8.0, 1.0, 6.0, 0.0, 0.0, 12.0};
-
-  std::vector<double> out(kRowsA * kColsB, -1.0);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(B.data()));
-  task_data->inputs_count.emplace_back(kRowsA);
-  task_data->inputs_count.emplace_back(kColsA);
-  task_data->inputs_count.emplace_back(kRowsB);
-  task_data->inputs_count.emplace_back(kColsB);
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data->outputs_count.emplace_back(kRowsA * kColsB);
-
-  stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicationCRS task(task_data);
-
-  EXPECT_TRUE(task.Validation());
-  EXPECT_TRUE(task.PreProcessing());
-  EXPECT_TRUE(task.Run());
-  EXPECT_TRUE(task.PostProcessing());
-
-  // Проверяем результат
-  for (int i = 0; i < kRowsA; i++) {
-    for (int j = 0; j < kColsB; j++) {
-      EXPECT_NEAR(out[i * kColsB + j], expected[i * kColsB + j], kTolerance)
-          << "Mismatch at position (" << i << ", " << j << ")";
-    }
-  }
-}
-
-TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_invalid_dimensions) {
-  // Тест с несовместимыми размерами матриц
-  constexpr int kRowsA = 3;
-  constexpr int kColsA = 4;
-  constexpr int kRowsB = 5;  // Несовместимое количество строк
-  constexpr int kColsB = 2;
-
-  std::vector<double> A(kRowsA * kColsA, 1.0);
-  std::vector<double> B(kRowsB * kColsB, 1.0);
-  std::vector<double> out(kRowsA * kColsB, 0.0);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(B.data()));
-  task_data->inputs_count.emplace_back(kRowsA);
-  task_data->inputs_count.emplace_back(kColsA);
-  task_data->inputs_count.emplace_back(kRowsB);
-  task_data->inputs_count.emplace_back(kColsB);
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data->outputs_count.emplace_back(kRowsA * kColsB);
-
-  stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicationCRS task(task_data);
-
-  // Проверка должна завершиться неудачей, так как размеры несовместимы
-  EXPECT_FALSE(task.Validation());
-}
-
-TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_zero_matrix) {
-  // Тест с нулевой матрицей
-  constexpr int kSize = 5;
-  constexpr double kTolerance = 1e-9;
-
-  std::vector<double> in(kSize * kSize, 0.0);
-  std::vector<double> out(kSize * kSize, -1.0);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data->inputs_count.emplace_back(kSize);
-  task_data->inputs_count.emplace_back(kSize);
-  task_data->inputs_count.emplace_back(kSize);
-  task_data->inputs_count.emplace_back(kSize);
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data->outputs_count.emplace_back(kSize * kSize);
-
-  stroganov_m_multiplication_double_crs_matrix_seq::SparseMatrixMultiplicationCRS task(task_data);
-
-  EXPECT_TRUE(task.Validation());
-  EXPECT_TRUE(task.PreProcessing());
-  EXPECT_TRUE(task.Run());
-  EXPECT_TRUE(task.PostProcessing());
-
-  // Результат умножения нулевой матрицы на себя должен быть нулевой матрицей
-  for (int i = 0; i < kSize * kSize; i++) {
-    EXPECT_NEAR(out[i], 0.0, kTolerance) << "Non-zero element at index " << i;
-  }
-}
-
-*/
 
 TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_identity) {
   constexpr int kSize = 5;
@@ -186,34 +82,22 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_identity) {
   std::vector<int> A_columns, A_row_ptr, B_columns, B_row_ptr;
   int A_rows, A_cols, B_rows, B_cols;
 
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(
-      dense_identity.data(), kSize, kSize,
-      A_values, A_columns, A_row_ptr, A_rows, A_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(dense_identity.data(), kSize, kSize, A_values,
+                                                                 A_columns, A_row_ptr, A_rows, A_cols);
 
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(
-      dense_identity.data(), kSize, kSize,
-      B_values, B_columns, B_row_ptr, B_rows, B_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(dense_identity.data(), kSize, kSize, B_values,
+                                                                 B_columns, B_row_ptr, B_rows, B_cols);
 
   std::vector<double> out(kSize * kSize, -1.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {
-      reinterpret_cast<uint8_t*>(A_values.data()),
-      reinterpret_cast<uint8_t*>(A_columns.data()),
-      reinterpret_cast<uint8_t*>(A_row_ptr.data()),
-      reinterpret_cast<uint8_t*>(B_values.data()),
-      reinterpret_cast<uint8_t*>(B_columns.data()),
-      reinterpret_cast<uint8_t*>(B_row_ptr.data())
-  };
+  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()), reinterpret_cast<uint8_t*>(A_columns.data()),
+                       reinterpret_cast<uint8_t*>(A_row_ptr.data()), reinterpret_cast<uint8_t*>(B_values.data()),
+                       reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())};
 
-  task_data->inputs_count = {
-      static_cast<std::uint32_t>(A_rows),
-      static_cast<std::uint32_t>(A_cols),
-      static_cast<std::uint32_t>(B_rows),
-      static_cast<std::uint32_t>(B_cols),
-      static_cast<std::uint32_t>(A_values.size()),
-      static_cast<std::uint32_t>(B_values.size())
-  };
+  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows), static_cast<std::uint32_t>(A_cols),
+                             static_cast<std::uint32_t>(B_rows), static_cast<std::uint32_t>(B_cols),
+                             static_cast<std::uint32_t>(A_values.size()), static_cast<std::uint32_t>(B_values.size())};
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(kSize * kSize));
@@ -229,15 +113,13 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_identity) {
     for (int j = 0; j < kSize; ++j) {
       double expected = (i == j) ? 1.0 : 0.0;
       EXPECT_NEAR(out[i * kSize + j], expected, kTolerance)
-          << "Mismatch at (" << i << ", " << j << "): expected " << expected
-          << ", got " << out[i * kSize + j];
+          << "Mismatch at (" << i << ", " << j << "): expected " << expected << ", got " << out[i * kSize + j];
     }
   }
 
   // Дополнительная проверка: результат == исходной плотной матрице
   for (int i = 0; i < kSize * kSize; ++i) {
-    EXPECT_NEAR(out[i], dense_identity[i], kTolerance)
-        << "Mismatch at index " << i;
+    EXPECT_NEAR(out[i], dense_identity[i], kTolerance) << "Mismatch at index " << i;
   }
 }
 
@@ -286,33 +168,21 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_random_sparse_matrices) {
   std::vector<int> A_columns, A_row_ptr, B_columns, B_row_ptr;
   int A_rows, A_cols, B_rows, B_cols;
 
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(
-      A_dense.data(), kRowsA, kColsA,
-      A_values, A_columns, A_row_ptr, A_rows, A_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(A_dense.data(), kRowsA, kColsA, A_values,
+                                                                 A_columns, A_row_ptr, A_rows, A_cols);
 
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(
-      B_dense.data(), kRowsB, kColsB,
-      B_values, B_columns, B_row_ptr, B_rows, B_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(B_dense.data(), kRowsB, kColsB, B_values,
+                                                                 B_columns, B_row_ptr, B_rows, B_cols);
 
   // Настройка task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {
-      reinterpret_cast<uint8_t*>(A_values.data()),
-      reinterpret_cast<uint8_t*>(A_columns.data()),
-      reinterpret_cast<uint8_t*>(A_row_ptr.data()),
-      reinterpret_cast<uint8_t*>(B_values.data()),
-      reinterpret_cast<uint8_t*>(B_columns.data()),
-      reinterpret_cast<uint8_t*>(B_row_ptr.data())
-  };
+  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()), reinterpret_cast<uint8_t*>(A_columns.data()),
+                       reinterpret_cast<uint8_t*>(A_row_ptr.data()), reinterpret_cast<uint8_t*>(B_values.data()),
+                       reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())};
 
-  task_data->inputs_count = {
-      static_cast<std::uint32_t>(A_rows),
-      static_cast<std::uint32_t>(A_cols),
-      static_cast<std::uint32_t>(B_rows),
-      static_cast<std::uint32_t>(B_cols),
-      static_cast<std::uint32_t>(A_values.size()),
-      static_cast<std::uint32_t>(B_values.size())
-  };
+  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows), static_cast<std::uint32_t>(A_cols),
+                             static_cast<std::uint32_t>(B_rows), static_cast<std::uint32_t>(B_cols),
+                             static_cast<std::uint32_t>(A_values.size()), static_cast<std::uint32_t>(B_values.size())};
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(kRowsA * kColsB));
@@ -327,8 +197,7 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_random_sparse_matrices) {
   // Сравнение с ожидаемым результатом
   for (int i = 0; i < kRowsA * kColsB; ++i) {
     EXPECT_NEAR(out[i], expected[i], kTolerance)
-        << "Mismatch at index " << i << ", expected: " << expected[i]
-        << ", got: " << out[i];
+        << "Mismatch at index " << i << ", expected: " << expected[i] << ", got: " << out[i];
   }
 }
 
@@ -339,25 +208,9 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_rectangular_matrices) {
   constexpr int kColsB = 2;
   constexpr double kTolerance = 1e-9;
 
-  std::vector<double> A_dense = {
-      1.0, 0.0, 0.0, 2.0,
-      0.0, 3.0, 0.0, 0.0,
-      0.0, 0.0, 4.0, 0.0
-  };
-
-  std::vector<double> B_dense = {
-      0.0, 1.0,
-      2.0, 0.0,
-      0.0, 3.0,
-      4.0, 0.0
-  };
-
-  std::vector<double> expected = {
-      8.0, 1.0,
-      6.0, 0.0,
-      0.0, 12.0
-  };
-
+  std::vector<double> A_dense = {1.0, 0.0, 0.0, 2.0, 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0};
+  std::vector<double> B_dense = {0.0, 1.0, 2.0, 0.0, 0.0, 3.0, 4.0, 0.0};
+  std::vector<double> expected = {8.0, 1.0, 6.0, 0.0, 0.0, 12.0};
   std::vector<double> out(kRowsA * kColsB, -1.0);
 
   // Конвертация в CRS
@@ -365,29 +218,19 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_rectangular_matrices) {
   std::vector<int> A_columns, A_row_ptr, B_columns, B_row_ptr;
   int A_rows, A_cols, B_rows, B_cols;
 
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(
-      A_dense.data(), kRowsA, kColsA, A_values, A_columns, A_row_ptr, A_rows, A_cols);
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(
-      B_dense.data(), kRowsB, kColsB, B_values, B_columns, B_row_ptr, B_rows, B_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(A_dense.data(), kRowsA, kColsA, A_values,
+                                                                 A_columns, A_row_ptr, A_rows, A_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(B_dense.data(), kRowsB, kColsB, B_values,
+                                                                 B_columns, B_row_ptr, B_rows, B_cols);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {
-      reinterpret_cast<uint8_t*>(A_values.data()),
-      reinterpret_cast<uint8_t*>(A_columns.data()),
-      reinterpret_cast<uint8_t*>(A_row_ptr.data()),
-      reinterpret_cast<uint8_t*>(B_values.data()),
-      reinterpret_cast<uint8_t*>(B_columns.data()),
-      reinterpret_cast<uint8_t*>(B_row_ptr.data())
-  };
+  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()), reinterpret_cast<uint8_t*>(A_columns.data()),
+                       reinterpret_cast<uint8_t*>(A_row_ptr.data()), reinterpret_cast<uint8_t*>(B_values.data()),
+                       reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())};
 
-  task_data->inputs_count = {
-      static_cast<std::uint32_t>(A_rows),
-      static_cast<std::uint32_t>(A_cols),
-      static_cast<std::uint32_t>(B_rows),
-      static_cast<std::uint32_t>(B_cols),
-      static_cast<std::uint32_t>(A_values.size()),
-      static_cast<std::uint32_t>(B_values.size())
-  };
+  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows), static_cast<std::uint32_t>(A_cols),
+                             static_cast<std::uint32_t>(B_rows), static_cast<std::uint32_t>(B_cols),
+                             static_cast<std::uint32_t>(A_values.size()), static_cast<std::uint32_t>(B_values.size())};
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(kRowsA * kColsB));
@@ -421,29 +264,23 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_invalid_dimensions) {
   std::vector<int> A_columns, A_row_ptr, B_columns, B_row_ptr;
   int A_rows, A_cols, B_rows, B_cols;
 
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(
-      A_dense.data(), kRowsA, kColsA, A_values, A_columns, A_row_ptr, A_rows, A_cols);
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(
-      B_dense.data(), kRowsB, kColsB, B_values, B_columns, B_row_ptr, B_rows, B_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(A_dense.data(), kRowsA, kColsA, A_values,
+                                                                 A_columns, A_row_ptr, A_rows, A_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(B_dense.data(), kRowsB, kColsB, B_values,
+                                                                 B_columns, B_row_ptr, B_rows, B_cols);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {
-      reinterpret_cast<uint8_t*>(A_values.data()),
-      reinterpret_cast<uint8_t*>(A_columns.data()),
-      reinterpret_cast<uint8_t*>(A_row_ptr.data()),
-      reinterpret_cast<uint8_t*>(B_values.data()),
-      reinterpret_cast<uint8_t*>(B_columns.data()),
-      reinterpret_cast<uint8_t*>(B_row_ptr.data())
+  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()), reinterpret_cast<uint8_t*>(A_columns.data()),
+                       reinterpret_cast<uint8_t*>(A_row_ptr.data()), reinterpret_cast<uint8_t*>(B_values.data()),
+                       reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())
   };
 
-  task_data->inputs_count = {
-      static_cast<std::uint32_t>(A_rows),
-      static_cast<std::uint32_t>(A_cols),
-      static_cast<std::uint32_t>(B_rows),
-      static_cast<std::uint32_t>(B_cols),
-      static_cast<std::uint32_t>(A_values.size()),
-      static_cast<std::uint32_t>(B_values.size())
-  };
+  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows),
+                             static_cast<std::uint32_t>(A_cols),
+                             static_cast<std::uint32_t>(B_rows),
+                             static_cast<std::uint32_t>(B_cols),
+                             static_cast<std::uint32_t>(A_values.size()),
+                             static_cast<std::uint32_t>(B_values.size())};
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(kRowsA * kColsB));
@@ -464,29 +301,23 @@ TEST(stroganov_m_sparse_matrix_seq, test_sparse_matmul_zero_matrix) {
   std::vector<int> A_columns, A_row_ptr, B_columns, B_row_ptr;
   int A_rows, A_cols, B_rows, B_cols;
 
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(
-      zero_dense.data(), kSize, kSize, A_values, A_columns, A_row_ptr, A_rows, A_cols);
-  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(
-      zero_dense.data(), kSize, kSize, B_values, B_columns, B_row_ptr, B_rows, B_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(zero_dense.data(), kSize, kSize, A_values,
+                                                                 A_columns, A_row_ptr, A_rows, A_cols);
+  stroganov_m_multiplication_double_crs_matrix_seq::convertToCRS(zero_dense.data(), kSize, kSize, B_values,
+                                                                 B_columns, B_row_ptr, B_rows, B_cols);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {
-      reinterpret_cast<uint8_t*>(A_values.data()),
-      reinterpret_cast<uint8_t*>(A_columns.data()),
-      reinterpret_cast<uint8_t*>(A_row_ptr.data()),
-      reinterpret_cast<uint8_t*>(B_values.data()),
-      reinterpret_cast<uint8_t*>(B_columns.data()),
-      reinterpret_cast<uint8_t*>(B_row_ptr.data())
+  task_data->inputs = {reinterpret_cast<uint8_t*>(A_values.data()), reinterpret_cast<uint8_t*>(A_columns.data()),
+                       reinterpret_cast<uint8_t*>(A_row_ptr.data()), reinterpret_cast<uint8_t*>(B_values.data()),
+                       reinterpret_cast<uint8_t*>(B_columns.data()), reinterpret_cast<uint8_t*>(B_row_ptr.data())
   };
 
-  task_data->inputs_count = {
-      static_cast<std::uint32_t>(A_rows),
-      static_cast<std::uint32_t>(A_cols),
-      static_cast<std::uint32_t>(B_rows),
-      static_cast<std::uint32_t>(B_cols),
-      static_cast<std::uint32_t>(A_values.size()),
-      static_cast<std::uint32_t>(B_values.size())
-  };
+  task_data->inputs_count = {static_cast<std::uint32_t>(A_rows),
+                             static_cast<std::uint32_t>(A_cols),
+                             static_cast<std::uint32_t>(B_rows),
+                             static_cast<std::uint32_t>(B_cols),
+                             static_cast<std::uint32_t>(A_values.size()),
+                             static_cast<std::uint32_t>(B_values.size())};
 
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(kSize * kSize));
